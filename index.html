@@ -5,60 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leadership Diagnostic Tool</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      line-height: 1.6;
-      background: #f9f9f9;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    .symptom {
-      display: block;
-      margin-bottom: 6px;
-    }
-    .results {
-      display: none;
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #fff;
-    }
-    button {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 6px;
-      border: none;
-      background: #333;
-      color: white;
-    }
-    button:hover {
-      background: #555;
-    }
-    .category-result {
-      margin-bottom: 15px;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
+    h1, h2 { text-align: center; }
+    .symptom { display: block; margin-bottom: 6px; }
+    .results { display: none; margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px; }
+    .category-result { margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #ddd; }
+    button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px; border: none; border-radius: 6px; background: #333; color: #fff; cursor: pointer; }
+    button:hover { background: #555; }
   </style>
 </head>
 <body>
   <h1>Leadership Diagnostic Tool</h1>
-  <p>Select the statements that resonate with your current leadership experience. Then click <b>Get Diagnosis</b> below to reveal your top 2–3 challenge areas along with prescriptions.</p>
+  <p>Select the statements that resonate with your leadership experience. Then click <b>Get Diagnosis</b> below to reveal your top 2–3 challenge areas and prescriptions.</p>
 
   <form id="diagnosticForm">
-    <div id="symptomList">
-      <!-- Symptoms will be injected here -->
-    </div>
+    <div id="symptomList"></div>
     <button type="button" onclick="calculateResults()">Get Diagnosis</button>
   </form>
 
-  <div class="results" id="results"></div>
+  <div id="results" class="results"></div>
 
   <script>
     const data = [
@@ -164,7 +129,7 @@
       }
     ];
 
-    // Render symptoms with checkboxes
+    // Render symptoms with checkboxes (flat list, no headings)
     const symptomListDiv = document.getElementById('symptomList');
     data.forEach(cat => {
       cat.symptoms.forEach(symptom => {
@@ -193,7 +158,12 @@
       } else {
         sorted.slice(0, 3).forEach(([diagnosis, count], idx) => {
           const cat = data.find(c => c.diagnosis === diagnosis);
-          resultsDiv.innerHTML += `<div class='category-result'><b>${idx===0?"Primary":idx===1?"Secondary":"Tertiary"}</b>: ${diagnosis}<br>Symptoms checked: ${count}<br><b>Prescription:</b> ${cat.prescription}</div>`;
+          resultsDiv.innerHTML += `
+            <div class='category-result'>
+              <b>${idx===0?"Primary":idx===1?"Secondary":"Tertiary"}</b>: ${diagnosis}<br>
+              Symptoms checked: ${count}<br>
+              <b>Prescription:</b> ${cat.prescription}
+            </div>`;
         });
       }
 
@@ -203,5 +173,4 @@
 </body>
 </html>
 
-</html>
 
