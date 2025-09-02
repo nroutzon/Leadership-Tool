@@ -1,167 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
   <title>Leadership Diagnostic Tool</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
-    h1 { text-align: center; }
-    .symptom { display:block; margin-bottom:8px; }
-    .results { display:none; margin-top:20px; padding:15px; background:#fff; border:1px solid #ccc; border-radius:6px; }
-    .result-item { margin-bottom:15px; }
-    button { display:block; margin:20px auto; padding:10px 20px; font-size:16px; border:none; border-radius:6px; background:#333; color:#fff; cursor:pointer; }
-    button:hover { background:#555; }
-  </style>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Leadership Diagnostic Tool</h1>
-  <p>Select the statements that resonate with your leadership experience, then click <b>Get Diagnosis</b> to see your top 2–3 challenges and prescriptions.</p>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Leadership Diagnostic Tool</h1>
 
-  <form id="diagnosticForm">
-    <div id="symptomList"></div>
-    <button type="button" id="submitBtn">Get Diagnosis</button>
-    <button type="button" id="resetBtn">Reset</button>
-  </form>
+    <!-- Form Example -->
+    <div class="card p-4 mb-4">
+      <form id="diagnostic-form">
+        <div class="mb-3">
+          <label for="decision" class="form-label">How confident are you in making team decisions?</label>
+          <select class="form-select question" id="decision" required>
+            <option value="">Select...</option>
+            <option value="1">Not confident</option>
+            <option value="2">Somewhat confident</option>
+            <option value="3">Confident</option>
+            <option value="4">Very confident</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="empathy" class="form-label">How well do you understand your team’s feelings?</label>
+          <select class="form-select question" id="empathy" required>
+            <option value="">Select...</option>
+            <option value="1">Not well</option>
+            <option value="2">Somewhat well</option>
+            <option value="3">Well</option>
+            <option value="4">Extremely well</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="vision" class="form-label">How clear is your leadership vision?</label>
+          <select class="form-select question" id="vision" required>
+            <option value="">Select...</option>
+            <option value="1">Not clear</option>
+            <option value="2">Somewhat clear</option>
+            <option value="3">Clear</option>
+            <option value="4">Very clear</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="communication" class="form-label">How strong are your communication skills?</label>
+          <select class="form-select question" id="communication" required>
+            <option value="">Select...</option>
+            <option value="1">Weak</option>
+            <option value="2">Average</option>
+            <option value="3">Strong</option>
+            <option value="4">Excellent</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="adaptability" class="form-label">How adaptable are you to change?</label>
+          <select class="form-select question" id="adaptability" required>
+            <option value="">Select...</option>
+            <option value="1">Not adaptable</option>
+            <option value="2">Somewhat adaptable</option>
+            <option value="3">Adaptable</option>
+            <option value="4">Very adaptable</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">See Results</button>
+      </form>
+      <!-- Progress Bar Example -->
+      <div class="mt-4">
+        <label>Progress</label>
+        <div class="progress" style="height: 20px;">
+          <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%;">0%</div>
+        </div>
+      </div>
+    </div>
 
-  <div id="results" class="results" aria-live="polite"></div>
+    <!-- Results Chart Example -->
+    <div class="card p-4 mb-4">
+      <h3 class="mb-3">Your Leadership Profile</h3>
+      <canvas id="resultsChart"></canvas>
+    </div>
+  </div>
 
+  <!-- Bootstrap JS & Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Data (categories only used internally; never displayed in the checklist)
-    const data = [
-      { diagnosis: "Not Making Time to Think",
-        prescription: "Set aside time to think — schedule weekly protected hours and start with prayer/journaling.",
-        symptoms: [
-          "I rarely block time on my calendar for reflection or strategic thinking.",
-          "I feel stuck in reactive mode instead of planning ahead.",
-          "I have ideas but never carve out space to process them.",
-          "My prayer or journaling time is sporadic or nonexistent."
-        ]},
-      { diagnosis: "Vision Problems",
-        prescription: "Clarify and share your vision — refine the DNA (who we are) and Action (what we do) vision.",
-        symptoms: [
-          "My team cannot clearly articulate our vision.",
-          "The vision feels fuzzy or uninspiring to me.",
-          "I struggle to invite others into shaping the vision.",
-          "Our vision doesn’t guide daily decision-making."
-        ]},
-      { diagnosis: "Not Bringing the Best People Along",
-        prescription: "Build with the right people — define ‘great’ per role, recruit for fit, and address misalignment quickly.",
-        symptoms: [
-          "I settle for ‘good enough’ hires rather than top talent.",
-          "Some team members don’t align with our values.",
-          "I feel like I must generate all the ideas myself.",
-          "I avoid hard conversations about performance."
-        ]},
-      { diagnosis: "Poor Relationships",
-        prescription: "Strengthen key relationships — increase trust, transparency, and personal connection.",
-        symptoms: [
-          "Work feels tense, transactional, or distrustful.",
-          "I avoid difficult conversations with my team.",
-          "I don’t know much about my team’s personal wins or struggles.",
-          "My words sometimes create distance instead of trust."
-        ]},
-      { diagnosis: "Not Cultivating a Culture of Growth",
-        prescription: "Foster a culture of growth — create individual growth plans and model learning.",
-        symptoms: [
-          "My team members are stagnating instead of learning.",
-          "We don’t have individual growth plans.",
-          "Training feels random, one-off, or punitive.",
-          "I don’t model personal learning consistently."
-        ]},
-      { diagnosis: "Not Consistently Communicating",
-        prescription: "Communicate with clarity and consistency — set meeting rhythms and listen with the heart.",
-        symptoms: [
-          "My team feels ‘out of the loop.’",
-          "I don’t have a regular rhythm of 1:1s or team meetings.",
-          "My updates aren’t consistent or clear.",
-          "I often listen to respond instead of listening to understand."
-        ]},
-      { diagnosis: "Lack of Teamwork Culture",
-        prescription: "Create a teamwork culture — break silos, celebrate wins, and resolve conflict promptly.",
-        symptoms: [
-          "My team works in silos rather than together.",
-          "Conflict lingers instead of being addressed.",
-          "Team wins are rarely celebrated.",
-          "Collaboration feels forced or unnatural."
-        ]},
-      { diagnosis: "No Scalable Systems",
-        prescription: "Design scalable systems — document simple, shareable processes with clear owners.",
-        symptoms: [
-          "Processes are inconsistent across the organization.",
-          "Growth feels chaotic instead of stable.",
-          "We rely on verbal instructions instead of documented systems.",
-          "No one is assigned to maintain systems."
-        ]},
-      { diagnosis: "Poor Business Model",
-        prescription: "Align mission and model — tune offerings and pricing so purpose and profit reinforce each other.",
-        symptoms: [
-          "Our revenue doesn’t match our mission.",
-          "We struggle to sustain financial health.",
-          "Our business model feels patched together.",
-          "I can’t clearly explain how we make money and impact."
-        ]},
-      { diagnosis: "Ignoring the Bottom Line",
-        prescription: "Steward the bottom line — align budgets to vision and track a few meaningful metrics.",
-        symptoms: [
-          "I don’t regularly review financial reports.",
-          "Budgets don’t reflect our vision priorities.",
-          "We focus on impact but neglect profitability.",
-          "We don’t measure results beyond anecdotal stories."
-        ]}
-    ];
-
-    // Render a flat list (no headings)
-    const list = document.getElementById('symptomList');
-    data.forEach(group => {
-      group.symptoms.forEach(text => {
-        const label = document.createElement('label');
-        label.className = 'symptom';
-        label.innerHTML = `<input type="checkbox" data-cat="${group.diagnosis}"> ${text}`;
-        list.appendChild(label);
-      });
-    });
-
-    function calculate() {
-      const checked = document.querySelectorAll('input[type="checkbox"]:checked');
-      const scores = {};
-      checked.forEach(cb => {
-        const cat = cb.getAttribute('data-cat');
-        scores[cat] = (scores[cat] || 0) + 1;
-      });
-      return Object.entries(scores).sort((a,b) => b[1]-a[1]); // [ [diagnosis, count], ... ]
-    }
-
-    function renderResults(sorted) {
-      const results = document.getElementById('results');
-      results.innerHTML = '<h2>Your Results</h2>';
-      if (sorted.length === 0) {
-        results.innerHTML += '<p>No statements selected. Please check a few symptoms and try again.</p>';
-      } else {
-        sorted.slice(0, 3).forEach(([diag, count], i) => {
-          const item = data.find(d => d.diagnosis === diag);
-          const tier = i === 0 ? 'Primary' : i === 1 ? 'Secondary' : 'Tertiary';
-          results.innerHTML += `
-            <div class="result-item">
-              <strong>${tier}:</strong> ${diag}<br>
-              Symptoms checked: ${count}<br>
-              <strong>Prescription:</strong> ${item.prescription}
-            </div>`;
+    // Progress Bar Logic
+    const questions = document.querySelectorAll('.question');
+    const progressBar = document.getElementById('progressBar');
+    questions.forEach(q => {
+      q.addEventListener('change', () => {
+        let answered = 0;
+        questions.forEach(q => {
+          if (q.value !== "") answered++;
         });
-      }
-      results.style.display = 'block';
-      results.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    document.getElementById('submitBtn').addEventListener('click', () => {
-      renderResults(calculate());
+        let percent = Math.round((answered / questions.length) * 100);
+        progressBar.style.width = percent + '%';
+        progressBar.textContent = percent + '%';
+      });
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      document.getElementById('diagnosticForm').reset();
-      const results = document.getElementById('results');
-      results.style.display = 'none';
-      results.innerHTML = '';
+    // Chart.js Logic
+    let chart;
+    document.getElementById('diagnostic-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = [
+        parseInt(document.getElementById('decision').value) || 0,
+        parseInt(document.getElementById('empathy').value) || 0,
+        parseInt(document.getElementById('vision').value) || 0,
+        parseInt(document.getElementById('communication').value) || 0,
+        parseInt(document.getElementById('adaptability').value) || 0
+      ];
+      if (chart) chart.destroy();
+      const ctx = document.getElementById('resultsChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Decision Making', 'Empathy', 'Vision', 'Communication', 'Adaptability'],
+          datasets: [{
+            label: 'Your Profile',
+            data: data,
+            backgroundColor: 'rgba(62,124,182,0.2)',
+            borderColor: '#3e7cb6',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              angleLines: { display: false },
+              suggestedMin: 1,
+              suggestedMax: 4
+            }
+          }
+        }
+      });
     });
   </script>
 </body>
